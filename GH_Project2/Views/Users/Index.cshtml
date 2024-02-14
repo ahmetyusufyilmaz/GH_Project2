@@ -1,0 +1,197 @@
+﻿@model List<User>
+
+<h1>Kullanıcılar</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Ad</th>
+            <th>Email</th>
+            <th>Cinsiyet</th>
+            <th>Durum</th>
+        </tr>
+    </thead>
+    <tbody id="bodyy">
+        @foreach (var user in Model)
+        {
+            <tr id="@user.Id">
+                <td>@user.Id</td>
+                <td><input type="text" name="name" value="@user.Name" size="30" disabled /></td>
+                <td><input type="text" name="email" value="@user.Email" size="40" disabled /></td>
+                <td>
+                    <select name="gender" disabled>
+                        @{
+                            if (user.Gender == "Erkek")
+                            {
+                                <option value="male" selected>Erkek</option>
+                                <option value="female">Kadın</option>
+                            }
+                            else
+                            {
+                                <option value="male">Erkek</option>
+                                <option value="female" selected>Kadın</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select name="status" disabled>
+                        @{
+                            if (user.Status == "Aktif")
+                            {
+                                <option value="active" selected>Aktif</option>
+                                <option value="inactive">İnaktif</option>
+                            }
+                            else
+                            {
+                                <option value="active">Aktif</option>
+                                <option value="inactive" selected>İnaktif</option>
+                            }
+                        }
+                    </select>
+                </td>
+                <td>
+                    <button name="update" class="btn btn-warning" value="1" onclick="updateUser(@user.Id,this)">Güncelle</button>
+                    <button name="remove" class="btn btn-danger" onclick="deleteUser(@user.Id)">Sil</button>
+                </td>
+            </tr>
+
+        }
+        <tr>
+            <td>
+                <button id="createnew" class="btn btn-success" value="1" onclick="createUser()">Yeni Kayıt Ekle</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script>
+    function updateUser(userId, buttonvalues) {
+        debugger
+        var cccc = buttonvalues.value;
+        if (buttonvalues.value == 1) {
+            openupdate(userId);
+            return null;
+        }
+        if (buttonvalues.value == 0) {
+            closeupdate(userId);
+        }
+        debugger
+
+        var email = $("#" + userId).find("input[name = 'email']").val();
+        var name = $("#" + userId).find("input[name = 'name']").val();
+        var gender = $("#" + userId).find("select[name = 'gender']").val();
+        var status = $("#" + userId).find("select[name = 'status']").val();
+
+        debugger
+
+        $.ajax({
+            url: '/Users/Update/',
+            type: 'POST',
+            data: { Id: userId, Name: name, Email: email, Gender: gender, Status: status },
+            success: function (response) {
+                // Başarılı güncelleme durumunda gerekli işlemleri yapabilirsiniz
+                alert("güncelleme başarılı");
+            },
+            error: function (error) {
+                console.error('Güncelleme hatası:', error);
+            }
+        });
+    }
+    function openupdate(userId) {
+        debugger
+
+        let tempbutton = $("#" + userId).find("button[name = 'update']");
+        tempbutton.attr('style', 'background-color:green');
+        tempbutton.val(0);
+
+        $("#" + userId).find("input[name = 'email']").removeAttr('disabled');
+        $("#" + userId).find("input[name = 'name']").removeAttr('disabled');
+        $("#" + userId).find("select[name = 'gender']").removeAttr('disabled');
+        $("#" + userId).find("select[name = 'status']").removeAttr('disabled');
+    }
+
+    function closeupdate(userId) {
+        debugger
+
+        let tempbutton = $("#" + userId).find("button[name = 'update']");
+        tempbutton.attr('style', 'background-color:#ffca2c');
+        tempbutton.val(1);
+
+        $("#" + userId).find("input[name = 'email']").attr("disabled", 'disabled');
+        $("#" + userId).find("input[name = 'name']").attr("disabled", 'disabled');
+        $("#" + userId).find("select[name = 'gender']").attr("disabled", 'disabled');
+        $("#" + userId).find("select[name = 'status']").attr("disabled", 'disabled');
+    }
+    function testmethod() {
+        debugger
+        $.ajax({
+            url: '/Users/testme/',
+            type: 'POST',
+            data: {},
+            success: function (response) {
+                console.log("testme");
+            },
+            error: function (error) {
+                console.error('Güncelleme hatası:', error);
+            }
+        });
+    }
+
+
+    function deleteUser(userId) {
+
+        $.ajax({
+            url: '/Users/Delete/' + userId,
+            type: 'POST',
+            success: function (response) {
+                alert("kullanıcı başarıyla silindi")
+                $("#" + userId).remove();
+
+            },
+            error: function (error) {
+                console.error('Silme hatası:', error);
+            }
+        });
+    }
+    function createUser() {
+
+        var a = `
+                                 <tr>
+                                        <td>
+                                                  <input type="text" name="id"/>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="name"  size="30"  />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="email"  size="30"  />
+                                        </td>
+                                        <td>
+                                            <select name="gender">
+                                                <option value="male">Erkek</option>
+                                                <option value="female" selected>Kadın</option>
+                                            </select>
+                                        </td>
+                                            <td>
+                                                    <select name="status">
+                                                    <option value="active">Aktif</option>
+                                                    <option value="inactive" selected>İnaktif</option>
+                                                </select>
+                                            </td>
+                                        <td>
+                                                  <button name="addnew" class="btn btn-success" >Yeni kayıt ekle</button
+                                        </td>
+                                        <td>
+                                                <span></span>
+                                        </td>
+                            `
+        $("#createnew").remove();
+        $("#bodyy").append(a);
+
+    }
+
+</script>
+
